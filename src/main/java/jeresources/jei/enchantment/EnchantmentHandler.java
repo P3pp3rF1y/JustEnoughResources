@@ -2,22 +2,21 @@ package jeresources.jei.enchantment;
 
 
 import jeresources.jei.JEIConfig;
-import jeresources.registry.EnchantmentRegistry;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
-import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class EnchantmentHandler implements IRecipeHandler<ItemStack>
+public class EnchantmentHandler implements IRecipeHandler<EnchantmentWrapper>
 {
     @Nonnull
     @Override
-    public Class<ItemStack> getRecipeClass()
+    public Class<EnchantmentWrapper> getRecipeClass()
     {
-        return ItemStack.class;
+        return EnchantmentWrapper.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
@@ -27,14 +26,21 @@ public class EnchantmentHandler implements IRecipeHandler<ItemStack>
 
     @Nonnull
     @Override
-    public IRecipeWrapper getRecipeWrapper(@Nonnull ItemStack recipe)
+    public String getRecipeCategoryUid(@Nonnull EnchantmentWrapper recipe)
     {
-        return new EnchantmentWrapper(recipe);
+        return JEIConfig.ENCHANTMENT;
+    }
+
+    @Nonnull
+    @Override
+    public IRecipeWrapper getRecipeWrapper(@Nonnull EnchantmentWrapper recipe)
+    {
+        return recipe;
     }
 
     @Override
-    public boolean isRecipeValid(@Nonnull ItemStack recipe)
+    public boolean isRecipeValid(@Nonnull EnchantmentWrapper recipe)
     {
-        return EnchantmentRegistry.getInstance().getEnchantments(recipe).size() > 0;
+        return true;
     }
 }

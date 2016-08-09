@@ -1,6 +1,6 @@
 package jeresources.jei.mob;
 
-import jeresources.entries.MobEntry;
+import jeresources.entry.MobEntry;
 import jeresources.jei.JEIConfig;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -16,9 +16,17 @@ public class MobHandler implements IRecipeHandler<MobEntry>
         return MobEntry.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
+    {
+        return JEIConfig.MOB;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull MobEntry recipe)
     {
         return JEIConfig.MOB;
     }

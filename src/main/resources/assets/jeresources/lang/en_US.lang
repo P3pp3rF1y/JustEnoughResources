@@ -21,17 +21,18 @@ jer.not=Not
 
 #Dungeon View
 jer.dungeon.title=Dungeon Chests
-jer.dungeon.mineshaftCorridor=Mineshaft
-jer.dungeon.pyramidDesertyChest=Desert Temple
-jer.dungeon.pyramidJungleChest=Mineshaft
-jer.dungeon.pyramidJungleDispenser=Jungle Temple
-jer.dungeon.strongholdCorridor=Stronghold Corridor
-jer.dungeon.strongholdLibrary=Stronghold Library
-jer.dungeon.strongholdCrossing=Stronghold Crossing
-jer.dungeon.villageBlacksmith=Blacksmith
-jer.dungeon.bonusChest=Bonus
-jer.dungeon.dungeonChest=Dungeon
-jer.dungeon.netherFortress=Nether Fortress
+jer.dungeon.abandonedMineshaftChest=Mineshaft
+jer.dungeon.desertPyramidChest=Desert Temple
+jer.dungeon.pyramidJungleChest=Jungle Temple
+jer.dungeon.strongholdCorridorChest=Stronghold Corridor
+jer.dungeon.strongholdLibraryChest=Stronghold Library
+jer.dungeon.strongholdCrossingChest=Stronghold Crossing
+jer.dungeon.villageBlacksmithChest=Blacksmith
+jer.dungeon.spawnBonusChest=Bonus
+jer.dungeon.simpleDungeonChest=Dungeon
+jer.dungeon.netherBridgeChest=Nether Fortress
+jer.dungeon.endCityTreasureChest=End City
+jer.dungeon.iglooChest=Igloo
 
 #Enchantments View
 jer.enchantments.title=Enchantments
@@ -45,13 +46,17 @@ jer.worldgen.silkTouch=Silk Touch Needed
 jer.worldgen.biomes=Spawn Biomes
 jer.worldgen.dimensions=Valid Dimensions
 jer.worldgen.drops=Drops
-jer.worldgen.average=Avg. Drop:
+jer.worldgen.average=Avg. Drops
+jer.worldgen.base=Normal
 
 #Mob View
 jer.mob.title=Mob Drops
 jer.mob.spawn=Spawn Biome:
 jer.mob.biome=Spawn Biomes: Hover mouse here
 jer.mob.exp=Experience Dropped
+
+#Villager View
+jer.villager.title=Villager Trades
 
 #Conditionals - when translating retain '%s' as this lets the modifier be properly inserted into the string
 jer.magmaCream.text=Small and Large Magma Cubes

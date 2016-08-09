@@ -1,9 +1,9 @@
 package jeresources.registry;
 
 import jeresources.api.conditionals.WatchableData;
-import jeresources.api.drop.DropItem;
-import jeresources.entries.MobEntry;
-import jeresources.utils.ReflectionHelper;
+import jeresources.api.drop.LootDrop;
+import jeresources.entry.MobEntry;
+import jeresources.util.ReflectionHelper;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.ArrayList;
@@ -38,12 +38,12 @@ public class MobRegistry
         return new ArrayList<>(registry);
     }
 
-    public void addDrops(Class<? extends EntityLivingBase> entity, WatchableData watchableData, DropItem... drops)
+    public void addDrops(Class<? extends EntityLivingBase> entity, WatchableData watchableData, LootDrop... drops)
     {
-        for (MobEntry entry : registry)
-            if (ReflectionHelper.isInstanceOf(entry.getEntity().getClass(), entity))
-                if (!watchableData.getExactClassMatchFlag() || entry.getEntity().getClass() == entity)
-                    if (watchableData.isValid(entry.getEntity().getDataWatcher()))
-                        entry.addDrops(drops);
+        registry.stream()
+                .filter(entry -> ReflectionHelper.isInstanceOf(entry.getEntity().getClass(), entity))
+                .filter(entry -> !watchableData.getExactClassMatchFlag() || entry.getEntity().getClass() == entity)
+                .filter(entry -> watchableData.isValid(entry.getEntity().getDataManager()))
+                .forEach(entry -> entry.addDrops(drops));
     }
 }

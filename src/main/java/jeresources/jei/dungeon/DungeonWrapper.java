@@ -1,22 +1,19 @@
 package jeresources.jei.dungeon;
 
-import jeresources.entries.DungeonEntry;
+import jeresources.entry.DungeonEntry;
 import jeresources.registry.DungeonRegistry;
-import jeresources.utils.CollectionHelper;
-import jeresources.utils.Font;
-import jeresources.utils.RenderHelper;
-import jeresources.utils.TranslationHelper;
+import jeresources.util.Font;
+import jeresources.util.RenderHelper;
+import jeresources.util.TranslationHelper;
 import mezz.jei.api.gui.ITooltipCallback;
-import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.recipe.BlankRecipeWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class DungeonWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
+public class DungeonWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>
 {
     public DungeonEntry chest;
 
@@ -25,48 +22,24 @@ public class DungeonWrapper implements IRecipeWrapper, ITooltipCallback<ItemStac
         this.chest = chest;
     }
 
-    @Override
-    public List getInputs()
-    {
-        return null;
-    }
-
+    @Nonnull
     @Override
     public List getOutputs()
     {
-        return CollectionHelper.create(this.chest.getItemStacks());
+        return this.chest.getItemStacks();
     }
 
     public int amountOfItems()
     {
-        return this.chest.getItemStacks().length;
+        return this.chest.getItemStacks().size();
     }
 
     public List<ItemStack> getItems(int slot, int slots)
     {
-        List<ItemStack> list = CollectionHelper.create(this.chest.getItemStacks()[slot]);
+        List<ItemStack> list = this.chest.getItemStacks().subList(slot, slot+1);
         for (int n = 1; n < (amountOfItems() / slots) + 1; n++)
-            list.add(this.amountOfItems() <= slot + slots * n ? null : this.chest.getItemStacks()[slot + slots * n]);
+            list.add(this.amountOfItems() <= slot + slots * n ? null : this.chest.getItemStacks().get(slot + slots * n));
         return list;
-    }
-
-    @Override
-    public List<FluidStack> getFluidInputs()
-    {
-        return null;
-    }
-
-    @Override
-    public List<FluidStack> getFluidOutputs()
-    {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
     }
 
     @Override
@@ -82,23 +55,10 @@ public class DungeonWrapper implements IRecipeWrapper, ITooltipCallback<ItemStac
         RenderHelper.renderChest(15, 20, -40, 20, getLidAngle());
     }
 
-    @Nullable
-    @Override
-    public List<String> getTooltipStrings(int mouseX, int mouseY)
-    {
-        return null;
-    }
-
-    @Override
-    public boolean handleClick(@Nonnull Minecraft minecraft, int mouseX, int mouseY, int mouseButton)
-    {
-        return false;
-    }
-
     @Override
     public void onTooltip(int slotIndex, boolean input, ItemStack ingredient, List<String> tooltip)
     {
-        tooltip.add(getChanceString(ingredient));
+        tooltip.add(this.chest.getChestDrop(ingredient).toString());
     }
 
     private boolean done;
@@ -120,14 +80,5 @@ public class DungeonWrapper implements IRecipeWrapper, ITooltipCallback<ItemStac
     public void resetLid()
     {
         lidStart = (int) System.currentTimeMillis() / 100;
-    }
-
-    public String getChanceString(ItemStack itemStack)
-    {
-        Float chance = this.chest.getChange(itemStack);
-        if (chance == null) return null;
-        chance *= 100;
-        String format = chance < 100 ? "%2.1f" : "%2.0f";
-        return String.format(format, chance).replace(',', '.') + "%";
     }
 }

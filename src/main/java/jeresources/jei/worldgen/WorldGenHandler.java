@@ -1,6 +1,6 @@
 package jeresources.jei.worldgen;
 
-import jeresources.entries.WorldGenEntry;
+import jeresources.entry.WorldGenEntry;
 import jeresources.jei.JEIConfig;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -16,9 +16,17 @@ public class WorldGenHandler implements IRecipeHandler<WorldGenEntry>
         return WorldGenEntry.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
+    {
+        return JEIConfig.WORLD_GEN;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull WorldGenEntry recipe)
     {
         return JEIConfig.WORLD_GEN;
     }

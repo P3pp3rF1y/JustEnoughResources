@@ -1,24 +1,22 @@
 package jeresources.jei.plant;
 
 import jeresources.api.drop.PlantDrop;
-import jeresources.entries.PlantEntry;
-import jeresources.utils.CollectionHelper;
-import jeresources.utils.RenderHelper;
+import jeresources.entry.PlantEntry;
+import jeresources.util.CollectionHelper;
+import jeresources.util.RenderHelper;
 import mezz.jei.api.gui.ITooltipCallback;
-import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.recipe.BlankRecipeWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlantWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
+public class PlantWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>
 {
     private PlantEntry plantEntry;
 
@@ -27,6 +25,7 @@ public class PlantWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
         plantEntry = entry;
     }
 
+    @Nonnull
     @Override
     public List getInputs()
     {
@@ -35,32 +34,14 @@ public class PlantWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
 
     public List<ItemStack> getDrops()
     {
-        return plantEntry.getDropItemStacks();
+        return plantEntry.getLootDropStacks();
     }
 
+    @Nonnull
     @Override
     public List getOutputs()
     {
-        return plantEntry.getDropItemStacks();
-    }
-
-    @Override
-    public List<FluidStack> getFluidInputs()
-    {
-        return null;
-    }
-
-    @Override
-    public List<FluidStack> getFluidOutputs()
-    {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
+        return plantEntry.getLootDropStacks();
     }
 
     @Override
@@ -68,25 +49,6 @@ public class PlantWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
     {
         RenderHelper.renderBlock(getFarmland(), 26, 50, -10, 20F, 0.4F);
         RenderHelper.renderBlock(getBlockState(), 26, 32, 10, 20F, 0.4F);
-    }
-
-    @Override
-    public void drawAnimations(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
-    }
-
-    @Nullable
-    @Override
-    public List<String> getTooltipStrings(int mouseX, int mouseY)
-    {
-        return null;
-    }
-
-    @Override
-    public boolean handleClick(@Nonnull Minecraft minecraft, int mouseX, int mouseY, int mouseButton)
-    {
-        return false;
     }
 
     @Override
@@ -155,6 +117,6 @@ public class PlantWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
 
     private IBlockState getFarmland()
     {
-        return Blocks.farmland.getDefaultState();
+        return Blocks.FARMLAND.getDefaultState();
     }
 }

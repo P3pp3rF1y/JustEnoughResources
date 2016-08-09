@@ -1,7 +1,7 @@
 package jeresources.config;
 
 import jeresources.reference.Reference;
-import jeresources.utils.TranslationHelper;
+import jeresources.util.TranslationHelper;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -17,6 +17,7 @@ public class ConfigHandler
 {
     public static Configuration config;
     private static File configDir;
+    private static String worldGenFileName = "world-gen.json";
 
     public static void init(File configDir)
     {
@@ -35,10 +36,15 @@ public class ConfigHandler
         return configDir;
     }
 
+    public static File getWorldGenFile()
+    {
+        return new File(configDir, worldGenFileName);
+    }
+
     @SubscribeEvent
     public void onConfigChangedEvent(ConfigChangedEvent.OnConfigChangedEvent event)
     {
-        if (event.modID.equalsIgnoreCase(Reference.ID))
+        if (event.getModID().equalsIgnoreCase(Reference.ID))
         {
             loadConfig();
         }
@@ -49,26 +55,27 @@ public class ConfigHandler
         Property prop;
 
         prop = config.get(Configuration.CATEGORY_GENERAL, "itemsPerColumn", 4);
-        prop.comment = TranslationHelper.translateToLocal("jer.config.itemsPerColumn.description");
+        prop.setComment(TranslationHelper.translateToLocal("jer.config.itemsPerColumn.description"));
         prop.setMinValue(1).setMaxValue(4);
         prop.setLanguageKey("jer.config.itemsPerColumn.title");
         Settings.ITEMS_PER_COLUMN = prop.getInt();
 
         prop = config.get(Configuration.CATEGORY_GENERAL, "itemsPerRow", 4);
-        prop.comment = TranslationHelper.translateToLocal("jer.config.itemsPerRow.description");
+        prop.setComment(TranslationHelper.translateToLocal("jer.config.itemsPerRow.description"));
         prop.setMinValue(1).setMaxValue(4);
         prop.setLanguageKey("jer.config.itemsPerRow.title");
         Settings.ITEMS_PER_ROW = prop.getInt();
 
         prop = config.get(Configuration.CATEGORY_GENERAL, "diyData", true);
-        prop.comment = TranslationHelper.translateToLocal("jer.config.diyData.description");
+        prop.setComment(TranslationHelper.translateToLocal("jer.config.diyData.description"));
         prop.setLanguageKey("jer.config.diyData.title");
         prop.requiresMcRestart();
         Settings.useDIYdata = prop.getBoolean();
 
-        prop = config.get(Configuration.CATEGORY_GENERAL, "enchantsBlacklist", new String[]{"flimflam"});
-        prop.comment = TranslationHelper.translateToLocal("jer.config.enchantsBlacklist.description");
+        prop = config.get(Configuration.CATEGORY_GENERAL, "enchantsBlacklist", new String[]{"flimflam", "soulBound"});
+        prop.setComment(TranslationHelper.translateToLocal("jer.config.enchantsBlacklist.description"));
         prop.setLanguageKey("jer.config.enchantsBlacklist.title");
+        prop.requiresMcRestart();
         Settings.excludedEnchants = prop.getStringList();
 
         if (config.hasChanged())

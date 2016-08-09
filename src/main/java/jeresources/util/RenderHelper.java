@@ -1,4 +1,4 @@
-package jeresources.utils;
+package jeresources.util;
 
 import jeresources.api.render.ColourHelper;
 import jeresources.api.render.IMobRenderHook;
@@ -14,11 +14,9 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.BossStatus;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
 
 public class RenderHelper
 {
@@ -96,9 +94,9 @@ public class RenderHelper
         entityLivingBase.prevRotationYawHead = entityLivingBase.rotationYaw;
         GlStateManager.translate(0.0F, entityLivingBase.getYOffset(), 0.0F);
         getRenderManager().setPlayerViewY(180.0F);
-        String temp = BossStatus.bossName;
-        getRenderManager().renderEntityWithPosYaw(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
-        BossStatus.bossName = temp;
+        //String temp = BossStatus.bossName;
+        getRenderManager().doRenderEntity(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+        //BossStatus.bossName = temp;
         entityLivingBase.renderYawOffset = renderYawOffset;
         entityLivingBase.rotationYaw = rotationYaw;
         entityLivingBase.rotationPitch = rotationPitch;
@@ -157,7 +155,7 @@ public class RenderHelper
         GlStateManager.translate(0.5F, 0.5F, 0.5F);
         GlStateManager.rotate(rotate, 0.0F, 1.0F, 0.0F);
         GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-        mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         mc.getBlockRendererDispatcher().renderBlockBrightness(block, 1.0F);
         GlStateManager.popMatrix();
         net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
@@ -187,6 +185,12 @@ public class RenderHelper
     public static void stopScissor()
     {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
+    }
+
+    public static void drawTexture(int x, int y, int u, int v, int width, int height, ResourceLocation resource)
+    {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(resource);
+        GuiUtils.drawTexturedModalRect(x, y, u, v, width, height, 0);
     }
 
     private static RenderManager getRenderManager()

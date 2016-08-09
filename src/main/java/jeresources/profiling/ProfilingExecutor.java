@@ -15,12 +15,12 @@ public class ProfilingExecutor {
 	public ProfilingExecutor(Profiler profiler) {
 		this.profiler = profiler;
 		final int processors = Runtime.getRuntime().availableProcessors();
-		this.executor = Executors.newFixedThreadPool(processors - 1);
+		this.executor = Executors.newFixedThreadPool(processors*2);
 	}
 
 	public void addChunkProfiler(DummyWorld dummyWorld, List<Chunk> chunks)
 	{
-		final int dimId = dummyWorld.provider.getDimensionId();
+		final int dimId = dummyWorld.provider.getDimensionType().getId();
 		final ProfiledDimensionData dimensionData = profiler.getAllDimensionData().get(dimId);
 
 		this.execute(new ChunkProfiler(dummyWorld, chunks, dimensionData, profiler.getTimer()));
