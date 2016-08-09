@@ -1,8 +1,8 @@
-package jeresources.utils;
+package jeresources.util;
 
-import jeresources.api.drop.DropItem;
+import jeresources.api.drop.LootDrop;
 import jeresources.api.restrictions.Restriction;
-import jeresources.entries.WorldGenEntry;
+import jeresources.entry.WorldGenEntry;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.IPlantable;
@@ -16,7 +16,10 @@ public class MapKeys
         Item item = drop.getItem();
         if (item == null)
             return null;
-        return item.getRegistryName() + ':' + drop.getMetadata();
+        String key = item.getRegistryName().toString() + ':' + drop.getMetadata();
+        if (drop.getTagCompound() != null)
+            key += ':' + drop.getTagCompound().toString();
+        return key;
     }
 
     public static String getKey(IPlantable plant)
@@ -24,7 +27,7 @@ public class MapKeys
         return plant.getPlant(null, null).getBlock().getUnlocalizedName();
     }
 
-    public static String getKey(DropItem dropItem)
+    public static String getKey(LootDrop dropItem)
     {
         return getKey(dropItem.item);
     }

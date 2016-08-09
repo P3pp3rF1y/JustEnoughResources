@@ -1,7 +1,8 @@
 package jeresources.profiling;
 
+import jeresources.config.ConfigHandler;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class ProfilingTimer
         {
             counters = new DimensionCounters();
             this.dimensionsMap.put(dim, counters);
-            send("[" + DimensionManager.getProvider(dim).getDimensionName() + "] Started profiling");
+            send("[" + DimensionManager.getProvider(dim).getDimensionType().getName() + "] Started profiling");
         }
         counters.threadCounter++;
     }
@@ -55,9 +56,9 @@ public class ProfilingTimer
         {
             DimensionCounters counters = dimensionsMap.get(dim);
             counters.completed = true;
-            send("[" + DimensionManager.getProvider(dim).getDimensionName() + "] Completed profiling of " +
+            send("[" + DimensionManager.getProvider(dim).getDimensionType().getName() + "] Completed profiling of " +
                     (getBlocksPerLayer(dim) * ChunkProfiler.CHUNK_HEIGHT) + " blocks in " +
-                    (System.currentTimeMillis() - counters.start) + " ms saved to blocks.json");
+                    (System.currentTimeMillis() - counters.start) + " ms saved to " + ConfigHandler.getWorldGenFile());
         }
     }
 
@@ -72,14 +73,14 @@ public class ProfilingTimer
 
     private void send(String s)
     {
-        this.sender.addChatMessage(new ChatComponentText(s));
+        this.sender.addChatMessage(new TextComponentTranslation(s));
     }
 
     private void sendSpeed(int dim)
     {
         DimensionCounters counters = dimensionsMap.get(dim);
         float time = (System.currentTimeMillis() - counters.start) * 1.0F / counters.chunkCounter;
-        String message = "[" + DimensionManager.getProvider(dim).getDimensionName() + "] Scanned " +
+        String message = "[" + DimensionManager.getProvider(dim).getDimensionType().getName() + "] Scanned " +
                 counters.chunkCounter + " chunks at " + String.format("%3.2f", time) + " ms/chunk";
         send(message);
     }

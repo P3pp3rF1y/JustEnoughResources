@@ -1,8 +1,8 @@
-package jeresources.entries;
+package jeresources.entry;
 
 import jeresources.api.drop.PlantDrop;
-import jeresources.utils.MapKeys;
-import jeresources.utils.SeedHelper;
+import jeresources.util.MapKeys;
+import jeresources.util.SeedHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +23,7 @@ public class PlantEntry
     public static PlantEntry registerGrass()
     {
         List<PlantDrop> seeds = SeedHelper.getSeeds();
-        PlantEntry grass = new PlantEntry(new ItemStack(Blocks.tallgrass, 1, 1), seeds.toArray(new PlantDrop[seeds.size()]));
+        PlantEntry grass = new PlantEntry(new ItemStack(Blocks.TALLGRASS, 1, 1), seeds.toArray(new PlantDrop[seeds.size()]));
         grass.totalWeight *= 8;
         return grass;
     }
@@ -71,7 +71,7 @@ public class PlantEntry
         return new ArrayList<>(this.drops.values());
     }
 
-    public List<ItemStack> getDropItemStacks()
+    public List<ItemStack> getLootDropStacks()
     {
         List<ItemStack> list = new ArrayList<>();
         for (PlantDrop drop : getDrops())

@@ -1,6 +1,6 @@
 package jeresources.jei.dungeon;
 
-import jeresources.entries.DungeonEntry;
+import jeresources.entry.DungeonEntry;
 import jeresources.jei.JEIConfig;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -16,9 +16,17 @@ public class DungeonHandler implements IRecipeHandler<DungeonEntry>
         return DungeonEntry.class;
     }
 
+    @Deprecated
     @Nonnull
     @Override
     public String getRecipeCategoryUid()
+    {
+        return JEIConfig.DUNGEON;
+    }
+
+    @Nonnull
+    @Override
+    public String getRecipeCategoryUid(@Nonnull DungeonEntry recipe)
     {
         return JEIConfig.DUNGEON;
     }

@@ -1,18 +1,19 @@
 package jeresources.jei.worldgen;
 
+import com.google.common.base.Objects;
 import jeresources.api.conditionals.Conditional;
-import jeresources.api.drop.DropItem;
-import jeresources.entries.WorldGenEntry;
-import jeresources.utils.Font;
-import jeresources.utils.RenderHelper;
-import jeresources.utils.TranslationHelper;
+import jeresources.api.drop.LootDrop;
+import jeresources.entry.WorldGenEntry;
+import jeresources.util.Font;
+import jeresources.util.RenderHelper;
+import jeresources.util.TranslationHelper;
 import mezz.jei.api.gui.ITooltipCallback;
-import mezz.jei.api.recipe.IRecipeWrapper;
+import mezz.jei.api.recipe.BlankRecipeWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>
+public class WorldGenWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>
 {
     protected static final int X_OFFSET = 49-20;
     protected static final int Y_OFFSET = 52;
@@ -39,12 +40,7 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
         return this.worldGenEntry.getColour();
     }
 
-    @Override
-    public List getInputs()
-    {
-        return null;
-    }
-
+    @Nonnull
     @Override
     public List getOutputs()
     {
@@ -56,28 +52,9 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
         return this.worldGenEntry.getBlock();
     }
 
-    public List<DropItem> getDrops()
+    public List<ItemStack> getDrops()
     {
         return this.worldGenEntry.getDrops();
-    }
-
-    @Override
-    public List<FluidStack> getFluidInputs()
-    {
-        return null;
-    }
-
-    @Override
-    public List<FluidStack> getFluidOutputs()
-    {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
     }
 
     @Override
@@ -142,12 +119,6 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
         }
     }
 
-    @Override
-    public void drawAnimations(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
-    }
-
     @Nullable
     @Override
     public List<String> getTooltipStrings(int mouseX, int mouseY)
@@ -156,12 +127,6 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
         if (onGraph(mouseX, mouseY))
             tooltip = getLineTooltip(mouseX, tooltip);
         return tooltip;
-    }
-
-    @Override
-    public boolean handleClick(@Nonnull Minecraft minecraft, int mouseX, int mouseY, int mouseButton)
-    {
-        return false;
     }
 
     @Override
@@ -181,19 +146,39 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
             List<String> biomes = worldGenEntry.getBiomeRestrictions();
             if (biomes.size() > 0)
             {
-                tooltip.add(StatCollector.translateToLocal("jer.worldgen.biomes") + ":");
+                tooltip.add(I18n.translateToLocal("jer.worldgen.biomes") + ":");
                 tooltip.addAll(biomes);
             }
 
             List<String> dimensions = worldGenEntry.getDimensions();
             if (dimensions.size() > 1)
             {
-                tooltip.add(StatCollector.translateToLocal("jer.worldgen.dimensions") + ":");
+                tooltip.add(I18n.translateToLocal("jer.worldgen.dimensions") + ":");
                 tooltip.addAll(dimensions);
             }
 
         } else
-            tooltip.add(TranslationHelper.translateToLocal("jer.worldgen.average") + " " + this.worldGenEntry.getDropItem(itemStack).chanceString());
+        {
+            tooltip.add(TranslationHelper.translateToLocal("jer.worldgen.average"));
+            String previousChanceString = null;
+            for (LootDrop dropItem : this.worldGenEntry.getLootDrops(itemStack))
+            {
+                final String chanceString = dropItem.chanceString();
+                if (Objects.equal(chanceString, previousChanceString)) {
+                    continue;
+                } else {
+                    previousChanceString = chanceString;
+                }
+
+                String line = "  ";
+                if (dropItem.fortuneLevel > 0)
+                    line += Enchantment.getEnchantmentByLocation("fortune").getTranslatedName(dropItem.fortuneLevel);
+                else
+                    line += TranslationHelper.translateToLocal("jer.worldgen.base");
+                line += ": " + chanceString;
+                tooltip.add(line);
+            }
+        }
         return tooltip;
     }
 
@@ -208,7 +193,8 @@ public class WorldGenWrapper implements IRecipeWrapper, ITooltipCallback<ItemSta
         if (index >= 0 && index < chances.length)
         {
             float chance = chances[index] * 100;
-            tooltip.add("Y: " + yValue + String.format(" (%.2G%%)", chance));
+            String percent = chance > 0.01f || chance == 0 ? String.format(" (%.2G%%)", chance) : " <0.01%";
+            tooltip.add("Y: " + yValue + percent);
         }
 
         return tooltip;

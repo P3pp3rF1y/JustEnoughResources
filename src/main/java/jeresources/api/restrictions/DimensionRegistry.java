@@ -1,10 +1,9 @@
 package jeresources.api.restrictions;
 
+import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.*;
-
-import net.minecraft.world.WorldProvider;
 
 public class DimensionRegistry
 {
@@ -41,7 +40,7 @@ public class DimensionRegistry
                 WorldProvider worldProvider = getWorldProvider(dimId);
                 if (worldProvider != null)
                 {
-                    name = worldProvider.getDimensionName();
+                    name = worldProvider.getDimensionType().getName();
                     if (age && !name.startsWith("Age")) name += " (Age)";
                 }
                 else

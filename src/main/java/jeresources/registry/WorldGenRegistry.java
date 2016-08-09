@@ -1,8 +1,8 @@
 package jeresources.registry;
 
-import jeresources.api.drop.DropItem;
-import jeresources.entries.WorldGenEntry;
-import jeresources.utils.MapKeys;
+import jeresources.api.drop.LootDrop;
+import jeresources.entry.WorldGenEntry;
+import jeresources.util.MapKeys;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class WorldGenRegistry
             worldGenMap.put(MapKeys.getKey(entry), entry);
     }
 
-    public void addDrops(ItemStack block, DropItem... drops)
+    public void addDrops(ItemStack block, LootDrop... drops)
     {
         for (Map.Entry<String, WorldGenEntry> entry : worldGenMap.entrySet())
             if (entry.getKey().startsWith(MapKeys.getKey(block)))

@@ -1,22 +1,21 @@
 package jeresources.jei.enchantment;
 
-import jeresources.entries.EnchantmentEntry;
+import jeresources.entry.EnchantmentEntry;
 import jeresources.registry.EnchantmentRegistry;
-import jeresources.utils.CollectionHelper;
-import jeresources.utils.Font;
-import jeresources.utils.TranslationHelper;
-import mezz.jei.api.recipe.IRecipeWrapper;
+import jeresources.util.CollectionHelper;
+import jeresources.util.Font;
+import jeresources.util.TranslationHelper;
+import mezz.jei.api.recipe.BlankRecipeWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EnchantmentWrapper implements IRecipeWrapper
+public class EnchantmentWrapper extends BlankRecipeWrapper
 {
     private static final int ENTRYS_PER_PAGE = 11;
     private static final int ENCHANT_X = 35;
@@ -31,10 +30,19 @@ public class EnchantmentWrapper implements IRecipeWrapper
     private int set, lastSet;
     private int nextCycle;
 
-    public EnchantmentWrapper(ItemStack itemStack)
+    @Nullable
+    public static EnchantmentWrapper create(@Nonnull ItemStack itemStack)
+    {
+        List<EnchantmentEntry> enchantments = new LinkedList<>(EnchantmentRegistry.getInstance().getEnchantments(itemStack));
+        if (enchantments.isEmpty())
+            return null;
+        return new EnchantmentWrapper(itemStack, enchantments);
+    }
+
+    private EnchantmentWrapper(@Nonnull ItemStack itemStack, @Nonnull List<EnchantmentEntry> enchantments)
     {
         this.itemStack = itemStack;
-        this.enchantments = new LinkedList<>(EnchantmentRegistry.getInstance().getEnchantments(itemStack));
+        this.enchantments = enchantments;
         this.set = 0;
         this.lastSet = this.enchantments.size() / (ENTRYS_PER_PAGE + 1);
         this.nextCycle = ((int) System.currentTimeMillis() / 1000) + CYCLE_TIME;
@@ -58,35 +66,11 @@ public class EnchantmentWrapper implements IRecipeWrapper
         }
     }
 
+    @Nonnull
     @Override
     public List getInputs()
     {
         return CollectionHelper.create(itemStack);
-    }
-
-    @Override
-    public List getOutputs()
-    {
-        return null;
-    }
-
-    @Override
-    public List<FluidStack> getFluidInputs()
-    {
-        return null;
-    }
-
-    @Override
-    public List<FluidStack> getFluidOutputs()
-    {
-        return null;
-    }
-
-    @Override
-    @Deprecated
-    public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
     }
 
     @Override
@@ -103,24 +87,5 @@ public class EnchantmentWrapper implements IRecipeWrapper
             String toPrint = TranslationHelper.getLocalPageInfo(this.set, this.lastSet);
             Font.normal.print(toPrint, PAGE_X, PAGE_Y);
         }
-    }
-
-    @Override
-    public void drawAnimations(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
-    }
-
-    @Nullable
-    @Override
-    public List<String> getTooltipStrings(int mouseX, int mouseY)
-    {
-        return null;
-    }
-
-    @Override
-    public boolean handleClick(@Nonnull Minecraft minecraft, int mouseX, int mouseY, int mouseButton)
-    {
-        return false;
     }
 }

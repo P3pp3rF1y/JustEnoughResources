@@ -1,10 +1,9 @@
 package jeresources.registry;
 
-import jeresources.entries.EnchantmentEntry;
+import jeresources.entry.EnchantmentEntry;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +33,7 @@ public class EnchantmentRegistry
         Set<EnchantmentEntry> set = new HashSet<>();
         for (EnchantmentEntry enchantment : enchantments)
         {
-            if (itemStack.getItem() == Items.book && enchantment.getEnchantment().isAllowedOnBooks())
+            if (itemStack.getItem() == Items.BOOK && enchantment.getEnchantment().isAllowedOnBooks())
                 set.add(enchantment);
             else if (enchantment.getEnchantment().canApply(itemStack)) set.add(enchantment);
         }
@@ -44,7 +43,7 @@ public class EnchantmentRegistry
     private void excludeFormRegistry(Enchantment enchantment)
     {
         for (Iterator<EnchantmentEntry> itr = enchantments.iterator(); itr.hasNext(); )
-            if (itr.next().getEnchantment().effectId == enchantment.effectId) itr.remove();
+            if (itr.next().getEnchantment().getName().equals(enchantment.getName())) itr.remove();
     }
 
     private void excludeFormRegistry(String sEnchantment)
@@ -60,8 +59,8 @@ public class EnchantmentRegistry
             excludeFormRegistry(enchant);
     }
 
-    private static Enchantment[] getEnchants()
+    private static Iterable<Enchantment> getEnchants()
     {
-        return ReflectionHelper.getPrivateValue(Enchantment.class, null, "field_180311_a", "enchantmentsList");
+        return Enchantment.REGISTRY;
     }
 }

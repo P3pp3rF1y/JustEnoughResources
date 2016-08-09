@@ -3,11 +3,14 @@ package jeresources.json;
 import com.google.common.collect.Sets;
 import com.google.gson.stream.JsonWriter;
 import jeresources.config.ConfigHandler;
+import jeresources.util.LogHelper;
 import net.minecraftforge.common.DimensionManager;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,14 +22,28 @@ public class ProfilingAdapter
     {
         public Map<String, Float[]> distribution = new HashMap<>();
         public Map<String, Boolean> silkTouchMap = new HashMap<>();
-        public Map<String, Map<String, Float>> dropsMap = new HashMap<>();
+        public Map<String, Map<String, Map<Integer, Float>>> dropsMap = new HashMap<>();
     }
 
     public static void write(final Map<Integer, DimensionData> allDimensionData)
     {
+
+        File oldWorldGenFile = ConfigHandler.getWorldGenFile();
+        if (oldWorldGenFile.exists())
+        {
+            Date date = new Date() ;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss") ;
+            boolean renamed = oldWorldGenFile.renameTo(new File(ConfigHandler.getConfigDir(), "world-gen-old-" + dateFormat.format(date) + ".json"));
+            if (!renamed)
+            {
+                LogHelper.warn("Could not rename old world-gen file. Aborting.");
+                return;
+            }
+        }
+
         try
         {
-            JsonWriter writer = new JsonWriter(new FileWriter(new File(ConfigHandler.getConfigDir(), "world-gen-scan.json")));
+            JsonWriter writer = new JsonWriter(new FileWriter(ConfigHandler.getWorldGenFile()));
             writer.setIndent("\t");
             writer.beginArray();
 
@@ -60,15 +77,31 @@ public class ProfilingAdapter
                         writer.name("distrib").value(sb.toString());
                     }
 
-                    Map<String, Float> drops = dimensionData.dropsMap.get(blockKey);
+                    Map<String, Map<Integer, Float>> drops = dimensionData.dropsMap.get(blockKey);
                     if (drops != null && !drops.isEmpty())
                     {
-                        StringBuilder dropsString = new StringBuilder();
-                        for (Map.Entry<String, Float> dropEntry : drops.entrySet())
+                        writer.name("dropsList");
+                        writer.beginArray();
                         {
-                            dropsString.append(dropEntry.getKey()).append(":").append(dropEntry.getValue()).append(",");
+                            for (Map.Entry<String, Map<Integer, Float>> dropEntry : drops.entrySet())
+                            {
+                                writer.beginObject();
+                                {
+                                    writer.name("itemStack").value(dropEntry.getKey());
+                                    writer.name("fortunes");
+                                    writer.beginObject();
+                                    {
+                                        for (Map.Entry<Integer, Float> fortuneEntry : dropEntry.getValue().entrySet())
+                                        {
+                                            writer.name(String.valueOf(fortuneEntry.getKey())).value(fortuneEntry.getValue());
+                                        }
+                                    }
+                                    writer.endObject();
+                                }
+                                writer.endObject();
+                            }
                         }
-                        writer.name("drops").value(dropsString.toString());
+                        writer.endArray();
                     }
 
                     Boolean canSilkTouch = dimensionData.silkTouchMap.get(blockKey);
@@ -77,7 +110,7 @@ public class ProfilingAdapter
                         writer.name("silktouch").value(canSilkTouch);
                     }
 
-                    writer.name("dim").value(DimensionManager.getProvider(dim).getDimensionName());
+                    writer.name("dim").value(DimensionManager.getProvider(dim).getDimensionType().getName());
                     writer.endObject();
                 }
             }

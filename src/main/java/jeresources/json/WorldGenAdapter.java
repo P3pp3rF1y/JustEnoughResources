@@ -7,14 +7,20 @@ import com.google.gson.JsonParser;
 import jeresources.api.distributions.DistributionBase;
 import jeresources.api.distributions.DistributionCustom;
 import jeresources.api.distributions.DistributionHelpers;
-import jeresources.api.drop.DropItem;
+import jeresources.api.drop.LootDrop;
 import jeresources.api.restrictions.Restriction;
 import jeresources.config.ConfigHandler;
-import jeresources.entries.WorldGenEntry;
+import jeresources.entry.WorldGenEntry;
 import jeresources.registry.WorldGenRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTUtil;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -23,12 +29,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WorldGenAdapter
 {
     public static boolean hasWorldGenDIYData()
     {
-        return new File(ConfigHandler.getConfigDir(), "world-gen.json").exists();
+        return ConfigHandler.getWorldGenFile().exists();
     }
 
     public static boolean readDIYData()
@@ -36,7 +43,7 @@ public class WorldGenAdapter
         JsonParser parser = new JsonParser();
         try
         {
-            JsonElement base = parser.parse(new FileReader(new File(ConfigHandler.getConfigDir(), "world-gen.json")));
+            JsonElement base = parser.parse(new FileReader(ConfigHandler.getWorldGenFile()));
             if (!base.isJsonArray() || base.getAsJsonArray().size() == 0) return false;
             JsonArray array = base.getAsJsonArray();
             for (int i = 0; i < array.size(); i++)
@@ -54,8 +61,6 @@ public class WorldGenAdapter
                     continue;
 
                 String distrib = distribElement.getAsString();
-                JsonElement dropsElement = obj.get("drops");
-                String drops = dropsElement != null ? dropsElement.getAsString() : "";
                 JsonElement silk = obj.get("silktouch");
                 boolean silktouch = silk != null && silk.getAsBoolean();
 
@@ -64,7 +69,7 @@ public class WorldGenAdapter
 
                 String[] blockParts = block.split(":");
 
-                Block blockBlock = GameRegistry.findBlock(blockParts[0], blockParts[1]);
+                Block blockBlock = Block.REGISTRY.getObject(new ResourceLocation(blockParts[0], blockParts[1]));
                 if (blockBlock == null || Item.getItemFromBlock(blockBlock) == null) continue;
                 int oreMeta = blockParts.length == 3 ? Integer.parseInt(blockParts[2]) : 0;
                 ItemStack blockStack = new ItemStack(blockBlock, 1, oreMeta);
@@ -77,28 +82,54 @@ public class WorldGenAdapter
                 }
                 DistributionBase distribution = new DistributionCustom(DistributionHelpers.getDistributionFromPoints(points.toArray(new DistributionHelpers.OrePoint[points.size()])));
 
-                List<DropItem> dropList = new ArrayList<>();
-                if (!drops.isEmpty())
+                JsonElement dropsListElement = obj.get("dropsList");
+                List<LootDrop> dropList = new ArrayList<>();
+                if (dropsListElement != null)
                 {
-                    for (String drop : drops.split(","))
+                    JsonArray drops = dropsListElement.getAsJsonArray();
+                    for (JsonElement dropElement : drops)
                     {
-                        String[] dropSplit = drop.split(":");
-                        Item item = GameRegistry.findItem(dropSplit[0], dropSplit[1]);
-                        if (item == null) continue;
+                        JsonObject drop = dropElement.getAsJsonObject();
+                        JsonElement itemStackElement = drop.get("itemStack");
+                        String itemStackString = itemStackElement.getAsString();
+                        String[] stackStrings = itemStackString.split(":", 4);
+                        Item item = Item.REGISTRY.getObject(new ResourceLocation(stackStrings[0], stackStrings[1]));
+                        if (item == null)
+                            continue;
 
-                        int meta = 0;
-                        float averageAmount = 1;
-                        if (dropSplit.length >= 3)
+                        ItemStack itemStack = new ItemStack(item);
+                        if (stackStrings.length >= 3)
                         {
-                            meta = Integer.parseInt(dropSplit[2]);
-                            if (dropSplit.length == 4)
-                                averageAmount = Float.parseFloat(dropSplit[3]);
+                            itemStack.setItemDamage(Integer.valueOf(stackStrings[2]));
                         }
-                        dropList.add(new DropItem(new ItemStack(item, 1, meta), averageAmount));
+
+                        if (stackStrings.length == 4)
+                        {
+                            try
+                            {
+                                itemStack.setTagCompound(JsonToNBT.getTagFromJson(stackStrings[3]));
+                            }
+                            catch (NBTException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        JsonElement fortuneElement = drop.get("fortunes");
+                        if (fortuneElement != null)
+                        {
+                            JsonObject fortunes = fortuneElement.getAsJsonObject();
+                            for (Map.Entry<String, JsonElement> fortuneValue : fortunes.entrySet())
+                            {
+                                int fortuneLevel = Integer.valueOf(fortuneValue.getKey());
+                                float dropAmount = fortuneValue.getValue().getAsFloat();
+                                dropList.add(new LootDrop(itemStack, dropAmount, fortuneLevel));
+                            }
+                        }
                     }
                 }
 
-                WorldGenRegistry.getInstance().registerEntry(new WorldGenEntry(blockStack, distribution, getRestriction(dim), silktouch, dropList.toArray(new DropItem[dropList.size()])));
+                WorldGenRegistry.getInstance().registerEntry(new WorldGenEntry(blockStack, distribution, getRestriction(dim), silktouch, dropList.toArray(new LootDrop[dropList.size()])));
             }
         } catch (FileNotFoundException e)
         {

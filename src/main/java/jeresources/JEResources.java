@@ -7,7 +7,7 @@ import jeresources.profiling.ProfileCommand;
 import jeresources.proxy.CommonProxy;
 import jeresources.reference.MetaData;
 import jeresources.reference.Reference;
-import jeresources.utils.LogHelper;
+import jeresources.util.LogHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = Reference.ID, name = Reference.NAME, version = Reference.VERSION_FULL, guiFactory = "jeresources.gui.ModGuiFactory", dependencies = "after:JEI@[2.23.0,);", clientSideOnly = true)
+@Mod(modid = Reference.ID, name = Reference.NAME, version = Reference.VERSION, guiFactory = "jeresources.gui.ModGuiFactory", dependencies = "required-after:JEI@[3.7.0,);", clientSideOnly = true)
 public class JEResources
 {
     @Mod.Metadata(Reference.ID)

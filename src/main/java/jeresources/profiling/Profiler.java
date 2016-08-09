@@ -1,6 +1,8 @@
 package jeresources.profiling;
 
+import jeresources.jei.JEIConfig;
 import jeresources.json.ProfilingAdapter;
+import mezz.jei.api.IJeiHelpers;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -44,13 +46,20 @@ public class Profiler implements Runnable
         writeData();
 
         this.timer.complete();
+
+        IJeiHelpers jeiHelpers = JEIConfig.getJeiHelpers();
+        if (jeiHelpers != null)
+        {
+            jeiHelpers.reload();
+        }
     }
 
     private void profileWorld(final WorldServer worldServer)
     {
         final ProfilingExecutor executor = new ProfilingExecutor(this);
         this.currentExecutor = executor;
-        this.allDimensionData.put(worldServer.provider.getDimensionId(), new ProfiledDimensionData());
+        int dimId = worldServer.provider.getDimensionType().getId();
+        this.allDimensionData.put(dimId, new ProfiledDimensionData());
 
         DummyWorld dummyWorld = new DummyWorld(worldServer);
         dummyWorld.init();

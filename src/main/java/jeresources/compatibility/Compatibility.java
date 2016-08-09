@@ -1,5 +1,6 @@
 package jeresources.compatibility;
 
+import jeresources.compatibility.minecraft.MinecraftCompat;
 import jeresources.config.Settings;
 import jeresources.json.WorldGenAdapter;
 
@@ -16,12 +17,10 @@ public class Compatibility
                 initWorldGen = false;
             }
         }
-        for (ModList mod : ModList.values())
-            mod.initialise(initWorldGen);
+        new MinecraftCompat().init(initWorldGen);
         MobRegistryImpl.commit();
         PlantRegistryImpl.commit();
         if (initWorldGen)
             WorldGenRegistryImpl.commit();
-        Settings.initedCompat = true;
     }
 }
